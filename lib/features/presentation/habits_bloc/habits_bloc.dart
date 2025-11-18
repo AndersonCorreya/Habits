@@ -12,12 +12,25 @@ class HabitsBloc extends Bloc<HabitsEvent, HabitsState> {
 
   HabitsBloc() : super(const HabitLoadingState()) {
     // Handle loading habits - NOW LOADS FROM HIVE!
-    on<LoadHabits>((event, emit) {
+    on<LoadHabits>((event, emit) async {
       emit(HabitLoadingState());
       try {
         final loadedHabits = _repository.loadHabits();
         _habits.clear();
         _habits.addAll(loadedHabits);
+        
+        // Sync notifications: Cancel all and reschedule only for current habits
+        await _notificationService.cancelAllNotifications();
+        for (final habit in _habits) {
+          if (habit.reminderTime != null) {
+            await _notificationService.scheduleHabitReminder(
+              habitId: habit.habitId,
+              habitName: habit.name,
+              reminderTime: habit.reminderTime!,
+            );
+          }
+        }
+        
         emit(HabitLoadedState(List.from(_habits)));
       } catch (e) {
         emit(HabitErrorState('Failed to load habits: $e'));
