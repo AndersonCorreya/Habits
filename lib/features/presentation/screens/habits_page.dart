@@ -29,7 +29,9 @@ class HabitsPage extends StatelessWidget {
           return ListView.builder(itemCount: state.habits.length,
           itemBuilder: (context,index){
             final habit = state.habits[index];
-            return ListTile(
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: ListTile(
               contentPadding: EdgeInsets.only(left: 16,right: 0),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(8),
@@ -49,7 +51,95 @@ class HabitsPage extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       IconButton(
-        onPressed: () {},
+        onPressed: () {
+          showDialog(context: context, builder: (dialogContext){
+            final TextEditingController controller = TextEditingController(text: habit.name);
+            TimeOfDay? selectedTime = habit.reminderTime != null ? TimeOfDay.fromDateTime(habit.reminderTime!) : null;
+            return StatefulBuilder(builder: (context, setState){
+              return AlertDialog(
+                title: const Text('Edit Habit'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                    textCapitalization: TextCapitalization.words,
+                controller: controller,
+                decoration: InputDecoration(hintText: 'Habit Name'),
+                autofocus: true,
+              ),
+              SizedBox(height: 16,),
+              Row(
+                    children: [
+                      Text(selectedTime == null 
+                          ? 'No time set' 
+                          : selectedTime!.format(context)),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: selectedTime ?? TimeOfDay.now(),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              selectedTime = picked;
+                            });
+                          }
+                        },
+                        child: const Text('Pick Time'),
+                      )
+                    ],
+                  )
+                  ],
+                ),
+                actions: [
+                                  TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final name = controller.text.trim();
+                    if (name.isNotEmpty) {
+                      // Convert TimeOfDay to DateTime
+                      DateTime? reminderDateTime;
+                      if (selectedTime != null) {
+                        final now = DateTime.now();
+                        reminderDateTime = DateTime(
+                          now.year,
+                          now.month,
+                          now.day,
+                          selectedTime!.hour,
+                          selectedTime!.minute,
+                        );
+                      }
+                      
+                      // Create updated habit with same ID
+                      final updatedHabit = Habit(
+                        habitId: habit.habitId,  // Keep the same ID!
+                        name: name,
+                        reminderTime: reminderDateTime,
+                      );
+                      
+                      // Dispatch update event
+                      context.read<HabitsBloc>().add(UpdateHabit(updatedHabit));
+                    }
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Save'),
+                )
+                ],
+
+              );
+            });
+
+
+          });
+
+          
+        },
         icon: Icon(Icons.edit, color: Colors.white),
       ),
       IconButton(
@@ -77,7 +167,8 @@ class HabitsPage extends StatelessWidget {
       ),
     ],
   ),
-);
+),
+            );
 
         
           },);
@@ -97,6 +188,7 @@ class HabitsPage extends StatelessWidget {
             return AlertDialog(
               title: const Text('Add Habit'),
               content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     textCapitalization: TextCapitalization.words,
@@ -108,7 +200,7 @@ class HabitsPage extends StatelessWidget {
               Row(
                 children: [
                   Text(selectedTime == null ? 'No time set' : selectedTime!.format(context)),
-                  const SizedBox(width: 8,),
+                  Spacer(),
                   ElevatedButton(onPressed: () async{
                     final TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
                     if (picked != null){

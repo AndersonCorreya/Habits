@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:habits_application/features/core/notification_service.dart';
+import 'package:habits_application/features/data/habit.dart';
+import 'package:habits_application/features/data/hive_adapter.dart';
 import 'package:habits_application/features/presentation/screens/habits_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habits_application/features/presentation/habits_bloc/habits_bloc.dart';
 import 'package:habits_application/features/presentation/habits_bloc/habits_events.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().initialize();
+    await Hive.initFlutter();
+
+  // Register adapter
+  Hive.registerAdapter(HabitAdapter());
+
+  // Open the box
+  await Hive.openBox<Habit>('habits');
   runApp(
     BlocProvider(
       create: (_) => HabitsBloc()..add(LoadHabits()),

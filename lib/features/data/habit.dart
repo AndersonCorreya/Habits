@@ -9,8 +9,7 @@ class Habit {
     required this.habitId,
     required this.name,
     this.description,
+    this.reminderTime,
     this.isCompleted = false,
-    this.reminderTime
   });
-
 }
