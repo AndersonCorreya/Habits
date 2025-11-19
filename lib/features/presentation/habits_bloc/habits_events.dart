@@ -2,9 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:habits_application/features/data/habit.dart';
 
-
-
-
 @immutable
 abstract class HabitsEvent extends Equatable {
   const HabitsEvent();

@@ -22,7 +22,7 @@ class HabitsPage extends StatelessWidget {
           }else if (state is HabitLoadedState){
             if(state.habits.isEmpty){
               return const Center(
-                child: Text('No Habits', style: TextStyle(color: Colors.black, fontSize: 28, fontWeight: FontWeight.w600)),
+                child: Text('No Habits', style: TextStyle(color: Colors.grey, fontSize: 28, fontWeight: FontWeight.w600)),
               );
             }
           
@@ -62,7 +62,7 @@ class HabitsPage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
-                    textCapitalization: TextCapitalization.words,
+                    textCapitalization: TextCapitalization.sentences,
                 controller: controller,
                 decoration: InputDecoration(hintText: 'Habit Name'),
                 autofocus: true,
@@ -152,13 +152,18 @@ class HabitsPage extends StatelessWidget {
                   'Do you really want to delete this Habit?',
                   style: TextStyle(color: Colors.black, fontSize: 16),
                 ),
-                content: TextButton(
+                content: Row(children: [TextButton(
                   onPressed: () {
                     context.read<HabitsBloc>().add(DeleteHabit(habit.habitId));
                     Navigator.pop(context);
                   },
-                  child: Text('Delete', style: TextStyle(color: Colors.red)),
-                ),
+                  child: Text('Delete', style: TextStyle(color: Colors.red)),),
+                  Spacer(),
+                  TextButton(onPressed: (){Navigator.pop(context);}, child: Text('Cancel'))
+
+                
+
+                ],)
               );
             },
           );
@@ -191,7 +196,7 @@ class HabitsPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    textCapitalization: TextCapitalization.words,
+                    textCapitalization: TextCapitalization.sentences,
                 controller: controller,
                 decoration: InputDecoration(hintText: 'Habit Name'),
                 autofocus: true,
